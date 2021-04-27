@@ -1,0 +1,180 @@
+<!--
+
+To run this demo, you need to replace 'YOUR-API-KEY' with an API key from the ArcGIS Developers dashboard.
+
+Sign up for a free account and get an API key.
+
+https://developers.arcgis.com/documentation/mapping-apis-and-location-services/get-started/
+
+ --><html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <title>ArcGIS API for JavaScript Tutorials: Display a map</title>
+    
+        <style>
+          html,
+          body,
+          #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+          }
+          *{
+              margin:0;
+              padding:0;
+          }
+          #check {
+            display:none;
+          }
+          #icone{
+              cursor: pointer;
+              padding: 15px;
+              position: absolute;
+              z-index: 1;
+          }
+          .barra{
+              background-color: #333;
+              height: 100%;
+              width: 300px;
+              position: absolute;
+              transition: all .2s linear;
+          }
+        </style>
+    
+        <link rel="stylesheet" href="https://js.arcgis.com/4.18/esri/themes/light/main.css">
+        <script src="https://js.arcgis.com/4.18/"></script>
+    
+        <script>
+          require([
+                "esri/config",
+                "esri/Map",
+                "esri/views/MapView",
+                "esri/layers/FeatureLayer"], function (esriConfig,Map, MapView, FeatureLayer) {
+    
+            esriConfig.apiKey = "AAPK9a6246373e534ca4873edd28466ea85awRW2dPHqcQB-wnbNJ6UvnBDEoAFpWJiGyXNb-T6mZrc5EmC3wc3rKWecNJLtTwKz";
+    
+            const map = new Map({
+              basemap: "arcgis-topographic" // Basemap layer service
+            });
+    
+            const view = new MapView({
+              map: map,
+              center: [-118.805, 34.027], // Longitude, latitude
+              zoom: 13, // Zoom level
+              container: "viewDiv" // Div element
+            });
+
+            const popupTrailheads = {
+                "title": "Trailhead",
+                "content" : "<b>Trail:</b> {TRL_NAME}<br><b>City:</b> {CITY_JUR}<br><b>Cross Street:</b> {X_STREET}<br><b>Parking:</b> {PARKING}<br><b>Elevation:</b> {ELEV_FT} ft"
+            }
+
+            const trailheads = new FeatureLayer({
+                url:"https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trailheads_Styled/FeatureServer/0",
+                outFields: ["TRL_NAME","CITY_JUR","X_STREET","PARKING","ELEV_FT"],
+                popupTemplate: popupTrailheads
+            });
+    
+                map.add(trailheads);
+
+            const popupTrails = {
+                title: "Trail Information",
+                content: [{
+                    type: "media",
+                    mediaInfos: [{
+                        type: "column-chart",
+                        caption: "",
+                        value: {
+                            fields: [ "ELEV_MIN","ELEV_MAX" ],
+                            normalizeField: null,
+                            tooltipField: "Min and max elevation values"
+                            }
+                        }]
+                    }]
+                }
+
+            const trails = new FeatureLayer({
+                url:"https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Trails_Styled/FeatureServer/0",
+                outFields:["TRL_NAME", "ELEV_GAIN"],
+                popupTemplate: popupTrails
+            });
+
+            map.add(trails,0);
+
+            const popupOpenspaces = {
+                "title": "{PARK_NAME}",
+                "content": [{
+                    "type": "fields",
+                    "fieldInfos": [{
+                    "fieldName": "AGNCY_NAME",
+                    "label": "Agency",
+                    "isEditable": true,
+                    "tooltip": "",
+                    "visible": true,
+                    "format": null,
+                    "stringFieldOption": "text-box"
+                },
+                {
+                     "fieldName": "TYPE",
+                    "label": "Type",
+                    "isEditable": true,
+                    "tooltip": "",
+                    "visible": true,
+                    "format": null,
+                    "stringFieldOption": "text-box"
+                },
+                {
+                    "fieldName": "ACCESS_TYP",
+                     "label": "Access",
+                     "isEditable": true,
+                     "tooltip": "",
+                      "visible": true,
+                      "format": null,
+                      "stringFieldOption": "text-box"
+                },
+                {
+                    "fieldName": "GIS_ACRES",
+                    "label": "Acres",
+                    "isEditable": true,
+                    "tooltip": "",
+                    "visible": true,
+                    "format": {
+                    "places": 2,
+                    "digitSeparator": true
+                },
+
+                    "stringFieldOption": "text-box"
+                }
+            ]
+        }]
+      }
+      const openspaces = new FeatureLayer({
+        url: "https://services3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Parks_and_Open_Space_Styled/FeatureServer/0",
+        outFields: ["TYPE","PARK_NAME", "AGNCY_NAME","ACCESS_TYP","GIS_ACRES","TRLS_MI","TOTAL_GOOD","TOTAL_FAIR", "TOTAL_POOR"],
+        popupTemplate: popupOpenspaces
+      });
+
+      map.add(openspaces,0);
+
+          });
+        </script>
+    
+      </head>
+      <body>
+          <input type="checkbox" id="check">
+          <labe id="icone" for="check"><img src="icone.png"></labe>
+          <div class="barra">
+            <nav>
+                <a href=""><div class="link">Deslizamentos</div></a>
+                <a href=""><div class="link">Erosão</div></a>
+                <a href=""><div class="link">Vegetação</div></a>
+                <a href=""><div class="link">Queimadas</div></a>
+                <a href=""><div class="link">Invasão Antrópica</div></a>
+
+            </nav>
+          </div>
+        <div id="viewDiv"></div>
+      </body>
+    </html>
